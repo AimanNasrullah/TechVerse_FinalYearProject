@@ -1,0 +1,232 @@
+{% extends "base.html" %}
+{% block title %}HOME{% endblock %}
+{% block content %}
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<style>
+    body {
+        font-family: 'Poppins', sans-serif;
+        background-color: #2B2B3A;
+        color: #FFF;
+        margin: 0;
+        padding: 0;
+    }
+    .content {
+        padding: 20px;
+    }
+    .header {
+        background-color: #1E1E2F;
+        padding: 20px;
+        text-align: center;
+        border-bottom: 1px solid #333;
+        margin-bottom: 20px;
+    }
+    .programming-chart-container {
+        position: relative;
+        margin: auto;
+        width: 80%;
+        max-width: 800px; /* Set a maximum width */
+        height: auto;
+        overflow: hidden;
+    }
+    .programming-table-container {
+        margin: auto;
+        width: 80%;
+        margin-top: 20px;
+        max-width: 800px; /* Set a maximum width */
+    }
+    .toggle-button {
+        margin: 20px auto;
+        display: flex;
+        justify-content: center;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background-color: #252533; /* Darker background for the table */
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        overflow: hidden;
+        color: #FFF; /* White text color */
+    }
+    th, td {
+        padding: 15px;
+        border-bottom: 1px solid #444; /* Slightly lighter than black */
+        color: #FFF;
+        white-space: nowrap; /* Prevent text from wrapping */
+    }
+    th {
+        background-color: #343446; /* Dark background for table header */
+        font-weight: bold;
+        color: #FFF; /* White text color for header */
+    }
+    tr:nth-child(even) {
+        background-color: #2a2a2a; /* Darker background for even rows */
+    }
+    .card {
+        background: #252533;
+        border: none;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        color: white;
+        margin-bottom: 20px;
+        overflow: hidden; /* Ensure content does not overflow */
+    }
+    .card img {
+        max-width: 100%;
+        border-radius: 10px;
+    }
+    .card-header {
+        background: #343446;
+        border-bottom: 1px solid #444;
+        padding: 15px;
+        font-size: 1.25rem;
+        font-weight: 500;
+        text-align: center;
+    }
+    .card-body {
+        padding: 20px;
+    }
+    .wordcloud-card-body{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+        height: 500px; /* Ensure this height is enough to contain the word cloud image */
+    }
+    .salary-box {
+        background: #3A3A4E;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        padding: 20px;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    .salary-box h2 {
+        font-size: 2rem;
+        margin: 0;
+    }
+    canvas {
+        max-width: 100%;
+        height: 300px !important;
+    }
+    .map-container {
+        height: 300px;
+        position: relative;
+    }
+    .map-container iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: none;
+    }
+    .toggle-button {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 20px;
+    }
+    .total-count {
+        display: flex;
+        justify-content: flex-end;
+        margin-left: 10px;
+        color: #FFF;
+        font-size: 18px;
+    }
+    .treemap-graph-div {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+    }
+    .search-container {
+        position: relative;
+        width: 300px;
+        margin: 50px auto;
+    }
+    
+    #search-bar {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+    
+    .dropdown {
+        position: absolute;
+        top: 40px;
+        left: 0;
+        right: 0;
+        border: 1px solid #ccc;
+        border-top: none;
+        background-color: white;
+        max-height: 150px;
+        overflow-y: auto;
+        display: none;
+        z-index: 1;
+    }
+    
+    .dropdown-item {
+        padding: 10px;
+        cursor: pointer;
+    }
+    
+    .dropdown-item:hover {
+        background-color: #f0f0f0;
+    }
+    @media (max-width: 768px) {
+        .content {
+            padding: 10px;
+        }
+        .programming-chart-container, .programming-table-container {
+            width: 100%;
+        }
+    }
+</style>
+<script>
+    function showPlot(plotId) {
+        document.getElementById('plot_Support').style.display = 'none';
+        document.getElementById('plot_Confidence').style.display = 'none';
+        document.getElementById(plotId).style.display = 'block';
+
+        document.getElementById('btn_support').classList.remove('btn-primary');
+        document.getElementById('btn_support').classList.add('btn-secondary');
+        document.getElementById('btn_confidence').classList.remove('btn-primary');
+        document.getElementById('btn_confidence').classList.add('btn-secondary');
+
+        if (plotId === 'plot_Support') {
+            document.getElementById('btn_support').classList.add('btn-primary');
+            document.getElementById('btn_support').classList.remove('btn-secondary');
+        } else {
+            document.getElementById('btn_confidence').classList.add('btn-primary');
+            document.getElementById('btn_confidence').classList.remove('btn-secondary');
+        }
+    }
+</script>
+<!-- Banner -->
+<section id="banner">
+    <div class="content">
+        <header>
+            <h2 style="font-size: 3em; margin: 0;">TechVerse</h2>
+            <p>Step into the Future of IT Careers: TechVerse - Where Skills Meet Opportunities</p>
+        </header>
+        <span class="image"><img src="../static/images/computer-system_12061031.png" alt="" /></span>
+    </div>
+    <a href="#main" class="goto-next scrolly">Next</a>
+</section>
+
+<!-- Main -->
+<div id="main" class="wrapper style1">
+    <div class="container">
+        <header class="major">
+            <h2>DASHBOARD</h2>
+            <p>Welcome to TechVerse. Here, we empower your career by identifying trending skillsets and providing tailored job matches to help you succeed</p>
+        </header>
+    </div>
+</div>
+
+{% endblock %}
